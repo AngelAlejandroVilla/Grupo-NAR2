@@ -33,6 +33,11 @@
               </div>
             </li>
           </ul>
+          <div class="py-3 text-center">
+            <button class="btn btn-primary">
+              Nuevo Formulario <i class="bi bi-file-earmark-plus"></i>
+            </button>
+          </div>
         </div>
       </div>
       <!-- /Sidebar -->
@@ -64,84 +69,90 @@
                       >Pregunta {{ index + 1 }}:</label
                     >
                     <input
-                      v-if="question.tipo === 'text'"
                       type="text"
                       v-model="question.pregunta"
-                      class="form-control form-input"
-                      placeholder="Ingrese una pregunta de texto"
+                      class="form-control form-control-lg form-control-solid mb-3"
+                      placeholder="Ingrese una pregunta"
                     />
-                    <div v-if="question.tipo === 'radio' && question.opciones">
-                      <input
-                        type="text"
-                        v-model="question.pregunta"
-                        class="form-control form-input"
-                        placeholder="Ingrese una pregunta"
-                      />
-                      <div
-                        v-for="(opcion, opcIndex) in question.opciones"
-                        :key="opcIndex"
-                      >
-                        <div class="input-group mb-3">
-                          <input
-                            type="text"
-                            :id="'opcion-' + index + '-' + opcIndex"
-                            :value="opcion.valor"
-                            v-model="question.opciones[opcIndex].valor"
-                            class="form-control"
-                            placeholder="Opción"
-                          />
-                          <button
-                            type="button"
-                            @click="removeOption(index, opcIndex)"
-                            class="btn btn-outline-danger"
-                          >
-                            <i class="bi bi-x fs-2 fw-700"></i>
-                          </button>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        @click="addOption(index)"
-                        class="btn btn-success mt-2 my-3"
-                      >
-                        Agregar Opción
-                      </button>
-                    </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="mb-3">
+                  <div class="col-md-3">
+                    <div>
                       <label for="tipoPregunta" class="form-label"
                         >Tipo de Pregunta</label
                       >
                       <select
                         v-model="questions[index].tipo"
                         @change="updateQuestionType(index, $event.target.value)"
-                        class="form-select"
+                        class="form-control form-select"
                       >
                         <option value="text">Texto</option>
                         <option value="radio">Opción múltiple</option>
                       </select>
                     </div>
                   </div>
+                  <div class="col-md-1">
+                    <div class="mt-7">
+                      <button
+                        type="button"
+                        @click="removeQuestion(index)"
+                        class="btn btn-remove"
+                      >
+                        <i class="bi bi-trash fs-1 fw-bold"></i>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  @click="removeQuestion(index)"
-                  class="btn btn-danger mt-2 my-3"
-                >
-                  Eliminar Pregunta
-                </button>
+                <div class="row">
+                  <div v-if="question.tipo === 'radio' && question.opciones">
+                    <div
+                      v-for="(opcion, opcIndex) in question.opciones"
+                      :key="opcIndex"
+                    >
+                      <div
+                        class="input-group"
+                        style="margin-top: 12px; margin-bottom: 12px"
+                      >
+                        <input
+                          type="text"
+                          :id="'opcion-' + index + '-' + opcIndex"
+                          :value="opcion.valor"
+                          v-model="question.opciones[opcIndex].valor"
+                          class="form-control"
+                          placeholder="Opción"
+                        />
+                        <button
+                          type="button"
+                          @click="removeOption(index, opcIndex)"
+                          class="btn btn-outline-danger"
+                        >
+                          <i class="bi bi-x fs-2 fw-700"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <span
+                      @click="addOption(index)"
+                      style="cursor: pointer; padding: 12px"
+                    >
+                      <i
+                        style="font-size: 1.5rem"
+                        class="bi bi-plus-circle"
+                      ></i>
+                      <span class="text-muted fs-3">Agregar Opcion</span>
+                    </span>
+                  </div>
+                </div>
               </div>
-
               <button
                 type="button"
                 @click="addQuestion"
-                class="btn btn-success btn-sm"
+                class="btn btn-primary me-2"
               >
                 Agregar Pregunta
+                <i class="bi bi-plus-lg"></i>
               </button>
-              <button type="submit" class="btn btn-primary btn-sm ms-2">
-                Crear Formulario
+              <button type="submit" class="btn btn-primary ms-2">
+                Guardar Formulario
+                <i class="bi bi-floppy"></i>
               </button>
             </form>
           </div>
@@ -154,27 +165,24 @@
 <script lang="ts">
 import { ref, defineComponent } from "vue";
 
-export interface questions {
-  tipo: string;
-  pregunta: string;
-  opciones?: { nombre: string; valor: string }[]; // Arreglo de objetos con nombre y valor
-}
-interface SavedForm {
-  title: string;
-  questions: questions[];
-  description: string;
-}
-
 export default defineComponent({
   setup() {
-    const questions = ref<questions[]>([]);
+    const questions = ref([]);
     const formTitle = ref<string>("");
     const formDesc = ref<string>("");
-    const savedForms = ref<SavedForm[]>([]);
+    const savedForms = ref([]);
     const selectedType = ref<string>("text");
 
+    questions.value = [
+      {
+        tipo: "text",
+        pregunta: "",
+        opciones: [],
+      },
+    ];
+
     const addQuestion = () => {
-      let newQuestion: questions = {
+      let newQuestion = {
         tipo: selectedType.value,
         pregunta: "",
         opciones: [],
@@ -185,19 +193,19 @@ export default defineComponent({
       questions.value.push(newQuestion);
     };
 
-    const removeQuestion = (index: number) => {
+    const removeQuestion = (index) => {
       questions.value.splice(index, 1);
     };
 
-    const addOption = (index: number) => {
+    const addOption = (index) => {
       questions.value[index].opciones.push({ nombre: "", valor: "" });
     };
 
-    const removeOption = (qIndex: number, oIndex: number) => {
+    const removeOption = (qIndex, oIndex) => {
       questions.value[qIndex].opciones.splice(oIndex, 1);
     };
 
-    const updateQuestionType = (index: number, newType: string) => {
+    const updateQuestionType = (index, newType) => {
       questions.value[index].tipo = newType;
       if (newType === "radio") {
         questions.value[index].opciones = []; // Reiniciar opciones si es pregunta de opción múltiple
@@ -226,12 +234,12 @@ export default defineComponent({
       formDesc.value = "";
       questions.value = [];
     };
-    const loadSavedForm = (savedForm: SavedForm) => {
+    const loadSavedForm = (savedForm) => {
       formTitle.value = savedForm.title;
       formDesc.value = savedForm.description;
       questions.value = [...savedForm.questions];
     };
-    const removeSavedForm = (index: number) => {
+    const removeSavedForm = (index) => {
       savedForms.value.splice(index, 1);
     };
 
@@ -304,38 +312,5 @@ export default defineComponent({
   background-color: transparent;
   font-size: 20px;
   margin-bottom: 12px;
-}
-
-.btn {
-  padding: 12px 24px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.btn-add {
-  background-color: #4caf50;
-  color: white;
-}
-
-.btn-submit {
-  background-color: #008cba;
-  color: white;
-}
-
-.btn-remove {
-  color: #dc3545;
-  background-color: transparent;
-}
-
-.btn-remove:hover {
-  color: #fff;
-  background-color: #dc3545;
-}
-
-.btn:hover {
-  opacity: 0.8;
 }
 </style>

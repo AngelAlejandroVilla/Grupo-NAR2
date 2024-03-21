@@ -1,8 +1,8 @@
 <template>
   <!--begin::Tables Widget 11-->
-  <div class="card container">
+  <div class="container">
     <!--begin::Body-->
-    <div class="card-body py-3">
+    <div class="py-3">
       <!--begin::Tab Navigation-->
       <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
         <li class="nav-item">
@@ -32,7 +32,7 @@
           role="tabpanel"
         >
           <!--begin::Table container for Tab 1-->
-          <div class="table-responsive">
+          <div class="table">
             <!--begin::Table for Tab 1-->
             <table class="table align-middle gs-0 gy-4">
               <!--Table head for Tab 1-->
